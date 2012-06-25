@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services">
+    <services>
+        <service id="behat.formatter.dispatcher.journal" class="Behat\JournalExtension\Formatter\JournalDispatcher">
+            <argument type="service" id="behat.mink" />
+            <tag name="behat.formatter.dispatcher" />
+        </service>
+    </services>
+</container>
