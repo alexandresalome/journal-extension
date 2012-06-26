@@ -29,7 +29,7 @@ class JournalFormatter extends HtmlFormatter
         if ($screenshot = $this->getScreenshot($driver)) {
             $this->writeln('<div class="screenshot">');
             $this->writeln(sprintf('<a href="#" class="screenshot-toggler">Toggle screenshot</a>'));
-            $this->writeln(sprintf('<img style="display: none;" src="data:image/png;base64,%s" />', $screenshot));
+            $this->writeln(sprintf('<img src="data:image/png;base64,%s" />', $screenshot));
             $this->writeln('</div>');
         }
     }
@@ -45,6 +45,25 @@ class JournalFormatter extends HtmlFormatter
             }).parent().addClass('jq-toggle');
         });
 JS;
+
+        return $result;
+    }
+
+    protected function getHtmlTemplateStyle()
+    {
+        $result = parent::getHtmlTemplateStyle();
+
+        $result .= <<<CSS
+
+        .screenshot img {
+            display: none;
+        }
+
+        .screenshot.jq-toggle-opened img {
+            display: block;
+        }
+
+CSS;
 
         return $result;
     }
