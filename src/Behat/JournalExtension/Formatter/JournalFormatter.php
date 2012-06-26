@@ -42,6 +42,8 @@ class JournalFormatter extends HtmlFormatter
         $(document).ready(function(){
             $('#behat .screenshot a').click(function(){
                 $(this).parent().toggleClass('jq-toggle-opened');
+
+                return false;
             }).parent().addClass('jq-toggle');
         });
 JS;
