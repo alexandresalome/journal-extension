@@ -27,7 +27,7 @@ class JournalFormatter extends HtmlFormatter
 
         $driver = $this->mink->getSession()->getDriver();
         if ($screenshot = $this->getScreenshot($driver)) {
-            $this->wrteln('<div class="screenshot">');
+            $this->writeln('<div class="screenshot">');
             $this->writeln(sprintf('<a href="#" class="screenshot-toggler">Toggle screenshot</a>'));
             $this->writeln(sprintf('<img style="display: none;" src="data:image/png;base64,%s" />', $screenshot));
             $this->writeln('</div>');
