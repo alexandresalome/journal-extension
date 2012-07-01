@@ -15,12 +15,17 @@ class Extension implements ExtensionInterface
     {
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__));
         $loader->load('services.xml');
+
+        $container->setParameter('behat.formatter.dispatcher.journal.capture_all', $config['capture_all']);
     }
 
     function getConfig(ArrayNodeDefinition $builder)
     {
         $builder
             ->children()
+                ->booleanNode('capture_all')
+                    ->defaultValue(false)
+                ->end()
             ->end()
         ;
     }

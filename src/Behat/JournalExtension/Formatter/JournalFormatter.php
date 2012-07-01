@@ -13,10 +13,12 @@ use Behat\Mink\Driver\SeleniumDriver;
 class JournalFormatter extends HtmlFormatter
 {
     protected $mink;
+    protected $captureAll;
 
-    public function __construct(Mink $mink)
+    public function __construct(Mink $mink, $captureAll)
     {
         $this->mink = $mink;
+        $this->captureAll = $captureAll;
 
         parent::__construct();
     }
@@ -26,7 +28,11 @@ class JournalFormatter extends HtmlFormatter
         parent::printStepBlock($step, $definition, $color);
 
         $driver = $this->mink->getSession()->getDriver();
-        if ($screenshot = $this->getScreenshot($driver)) {
+
+        $capture = $this->captureAll || $color == 'failed';
+
+
+        if ($capture && $screenshot = $this->getScreenshot($driver)) {
             $this->writeln('<div class="screenshot">');
             $this->writeln(sprintf('<a href="#" class="screenshot-toggler">Toggle screenshot</a>'));
             $this->writeln(sprintf('<img src="data:image/png;base64,%s" />', $screenshot));
@@ -73,9 +79,10 @@ CSS;
     protected function getScreenshot(DriverInterface $driver)
     {
         if ($driver instanceof SeleniumDriver) {
-            $driver->getBrowser()->captureEntirePageScreenshot("/tmp/toto", '');
+            $out = $driver->getBrowser()->captureEntirePageScreenshotToString("");
+            $out = str_replace("\n", "", $out);
 
-            return base64_encode(file_get_contents('/tmp/toto'));
+            return $out;
         }
     }
 }

@@ -4,6 +4,7 @@
         <service id="behat.formatter.dispatcher.journal" class="Behat\JournalExtension\Formatter\JournalDispatcher">
             <argument type="service" id="behat.mink" />
             <tag name="behat.formatter.dispatcher" />
+            <argument>%behat.formatter.dispatcher.journal.capture_all%</argument>
         </service>
     </services>
 </container>

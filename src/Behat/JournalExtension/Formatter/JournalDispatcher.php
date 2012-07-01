@@ -8,10 +8,12 @@ use Behat\Mink\Mink;
 class JournalDispatcher extends FormatterDispatcher
 {
     protected $mink;
+    protected $captureAll;
 
-    public function __construct(Mink $mink)
+    public function __construct(Mink $mink, $captureAll)
     {
         $this->mink = $mink;
+        $this->captureAll = $captureAll;
 
         parent::__construct(
             'Behat\JournalExtension\Formatter\JournalFormatter',
@@ -22,6 +24,6 @@ class JournalDispatcher extends FormatterDispatcher
 
     public function createFormatter()
     {
-        return new JournalFormatter($this->mink);
+        return new JournalFormatter($this->mink, $this->captureAll);
     }
 }
