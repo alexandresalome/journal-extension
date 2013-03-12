@@ -3,6 +3,7 @@
 namespace Behat\JournalExtension\Formatter;
 
 use Behat\Behat\Definition\DefinitionInterface;
+use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Behat\Formatter\HtmlFormatter;
 use Behat\Gherkin\Node\StepNode;
 use Behat\Mink\Mink;
@@ -83,6 +84,8 @@ CSS;
             $out = str_replace("\n", "", $out);
 
             return $out;
+        } elseif ($driver instanceof Selenium2Driver) {
+            return $driver->getWebDriverSession()->screenshot();
         }
     }
 }
