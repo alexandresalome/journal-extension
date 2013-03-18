@@ -33,11 +33,20 @@ class JournalFormatter extends HtmlFormatter
         $capture = $this->captureAll || $color == 'failed';
 
 
-        if ($capture && $screenshot = $this->getScreenshot($driver)) {
-            $this->writeln('<div class="screenshot">');
-            $this->writeln(sprintf('<a href="#" class="screenshot-toggler">Toggle screenshot</a>'));
-            $this->writeln(sprintf('<img src="data:image/png;base64,%s" />', $screenshot));
-            $this->writeln('</div>');
+        if ($capture) {
+            try {
+                $screenshot = $this->getScreenshot($driver);
+                if ($screenshot) {
+                    $this->writeln('<div class="screenshot">');
+                    $this->writeln(sprintf('<a href="#" class="screenshot-toggler">Toggle screenshot</a>'));
+                    $this->writeln(sprintf('<img src="data:image/png;base64,%s" />', $screenshot));
+                    $this->writeln('</div>');
+                }
+            } catch (\Exception $e) {
+                $this->writeln('<div class="screenshot">');
+                $this->writeln(sprintf('<em>Error while taking screenshot</em>'));
+                $this->writeln('</div>');
+            }
         }
     }
 
