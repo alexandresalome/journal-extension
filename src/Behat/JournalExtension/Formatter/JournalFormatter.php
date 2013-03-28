@@ -39,7 +39,7 @@ class JournalFormatter extends HtmlFormatter
                 if ($screenshot) {
                     $this->writeln('<div class="screenshot">');
                     $this->writeln(sprintf('<a href="#" class="screenshot-toggler">Toggle screenshot</a>'));
-                    $this->writeln(sprintf('<img src="data:image/png;base64,%s" />', $screenshot));
+                    $this->writeln(sprintf('<img src="%s" />', $screenshot));
                     $this->writeln('</div>');
                 }
             } catch (\Exception $e) {
@@ -94,7 +94,7 @@ CSS;
 
             return $out;
         } elseif ($driver instanceof Selenium2Driver) {
-            return $driver->getWebDriverSession()->screenshot();
+            return $driver->getScreenshot();
         }
     }
 }
