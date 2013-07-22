@@ -2,14 +2,14 @@
 
 namespace Behat\JournalExtension\Formatter;
 
+use Behat\Behat\DataCollector\LoggerDataCollector;
 use Behat\Behat\Definition\DefinitionInterface;
-use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Behat\Formatter\HtmlFormatter;
 use Behat\Gherkin\Node\StepNode;
-use Behat\Mink\Mink;
 use Behat\Mink\Driver\DriverInterface;
-
+use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Driver\SeleniumDriver;
+use Behat\Mink\Mink;
 
 class JournalFormatter extends HtmlFormatter
 {
@@ -24,14 +24,28 @@ class JournalFormatter extends HtmlFormatter
         parent::__construct();
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    protected function printSummary(LoggerDataCollector $logger)
+    {
+        $this->writeln(<<<'HTML'
+<div class="switchers">
+    <a href="#" onclick="$('.screenshot').addClass('jq-toggle-opened'); $('#behat_show_all').click(); return false;" id="behat_show_screenshots">[+] screenshots</a>
+    <a href="#" onclick="$('.screenshot').removeClass('jq-toggle-opened'); $('#behat_hide_all').click(); return false;" id="behat_hide_screenshots">[-] screenshots</a>
+</div>
+HTML
+);
+        parent::printSummary($logger);
+    }
+
     protected function printStepBlock(StepNode $step, DefinitionInterface $definition = null, $color)
     {
         parent::printStepBlock($step, $definition, $color);
 
         $driver = $this->mink->getSession()->getDriver();
 
-        $capture = $this->captureAll || $color == 'failed';
-
+        $capture = true || $this->captureAll || $color == 'failed';
 
         if ($capture) {
             try {
