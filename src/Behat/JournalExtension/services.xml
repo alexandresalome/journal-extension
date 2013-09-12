@@ -2,9 +2,18 @@
 <container xmlns="http://symfony.com/schema/dic/services">
     <services>
         <service id="behat.formatter.dispatcher.journal" class="Behat\JournalExtension\Formatter\JournalDispatcher">
-            <argument type="service" id="behat.mink" />
-            <tag name="behat.formatter.dispatcher" />
+            <argument type="service" id="journal.driver" />
             <argument>%behat.formatter.dispatcher.journal.capture_all%</argument>
+
+            <tag name="behat.formatter.dispatcher" />
+        </service>
+
+        <service id="journal.driver.mink" public="false" class="Behat\JournalExtension\Formatter\Driver\MinkDriver">
+            <argument type="service" id="behat.mink" on-invalid="null" />
+        </service>
+
+        <service id="journal.driver.webdriver" public="false" class="Behat\JournalExtension\Formatter\Driver\WebDriverDriver">
+            <argument type="service" id="behat.webdriver.context.initializer" on-invalid="null" />
         </service>
     </services>
 </container>

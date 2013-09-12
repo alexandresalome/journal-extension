@@ -3,16 +3,16 @@
 namespace Behat\JournalExtension\Formatter;
 
 use Behat\Behat\Formatter\FormatterDispatcher;
-use Behat\Mink\Mink;
+use Behat\JournalExtension\Formatter\Driver\DriverInterface;
 
 class JournalDispatcher extends FormatterDispatcher
 {
-    protected $mink;
+    protected $driver;
     protected $captureAll;
 
-    public function __construct(Mink $mink, $captureAll)
+    public function __construct(DriverInterface $driver, $captureAll = false)
     {
-        $this->mink = $mink;
+        $this->driver = $driver;
         $this->captureAll = $captureAll;
 
         parent::__construct(
@@ -24,6 +24,6 @@ class JournalDispatcher extends FormatterDispatcher
 
     public function createFormatter()
     {
-        return new JournalFormatter($this->mink, $this->captureAll);
+        return new JournalFormatter($this->driver, $this->captureAll);
     }
 }

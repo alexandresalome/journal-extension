@@ -6,19 +6,17 @@ use Behat\Behat\DataCollector\LoggerDataCollector;
 use Behat\Behat\Definition\DefinitionInterface;
 use Behat\Behat\Formatter\HtmlFormatter;
 use Behat\Gherkin\Node\StepNode;
-use Behat\Mink\Driver\DriverInterface;
-use Behat\Mink\Driver\Selenium2Driver;
-use Behat\Mink\Driver\SeleniumDriver;
+use Behat\JournalExtension\Formatter\Driver\DriverInterface;
 use Behat\Mink\Mink;
 
 class JournalFormatter extends HtmlFormatter
 {
-    protected $mink;
+    protected $driver;
     protected $captureAll;
 
-    public function __construct(Mink $mink, $captureAll)
+    public function __construct(DriverInterface $driver, $captureAll)
     {
-        $this->mink = $mink;
+        $this->driver = $driver;
         $this->captureAll = $captureAll;
 
         parent::__construct();
@@ -43,22 +41,20 @@ HTML
     {
         parent::printStepBlock($step, $definition, $color);
 
-        $driver = $this->mink->getSession()->getDriver();
-
-        $capture = true || $this->captureAll || $color == 'failed';
+        $capture = $this->captureAll || $color == 'failed';
 
         if ($capture) {
             try {
-                $screenshot = $this->getScreenshot($driver);
+                $screenshot = $this->driver->getScreenshot();
                 if ($screenshot) {
                     $this->writeln('<div class="screenshot">');
                     $this->writeln(sprintf('<a href="#" class="screenshot-toggler">Toggle screenshot</a>'));
-                    $this->writeln(sprintf('<img src="data:image/png;base64,%s" />', $screenshot));
+                    $this->writeln(sprintf('<img src="data:image/png;base64,%s" />', base64_encode($screenshot)));
                     $this->writeln('</div>');
                 }
             } catch (\Exception $e) {
                 $this->writeln('<div class="screenshot">');
-                $this->writeln(sprintf('<em>Error while taking screenshot</em>'));
+                $this->writeln(sprintf('<em>Error while taking screenshot: %s</em>', htmlspecialchars($e->getMessage())));
                 $this->writeln('</div>');
             }
         }
@@ -98,17 +94,5 @@ JS;
 CSS;
 
         return $result;
-    }
-
-    protected function getScreenshot(DriverInterface $driver)
-    {
-        if ($driver instanceof SeleniumDriver) {
-            $out = $driver->getBrowser()->captureEntirePageScreenshotToString("");
-            $out = str_replace("\n", "", $out);
-
-            return $out;
-        } elseif ($driver instanceof Selenium2Driver) {
-            return $driver->getWebDriverSession()->screenshot();
-        }
     }
 }

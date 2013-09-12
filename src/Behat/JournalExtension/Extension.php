@@ -17,12 +17,14 @@ class Extension implements ExtensionInterface
         $loader->load('services.xml');
 
         $container->setParameter('behat.formatter.dispatcher.journal.capture_all', $config['capture_all']);
+        $container->setAlias('journal.driver', 'journal.driver.'.$config['driver']);
     }
 
     function getConfig(ArrayNodeDefinition $builder)
     {
         $builder
             ->children()
+                ->scalarNode('driver')->defaultValue('mink')->end()
                 ->booleanNode('capture_all')
                     ->defaultValue(false)
                 ->end()
