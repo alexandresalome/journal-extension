@@ -2,9 +2,9 @@
 
 namespace Behat\JournalExtension\Formatter\Driver;
 
-use Behat\Mink\Driver\DriverInterface;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Driver\SeleniumDriver;
+use Behat\Mink\Mink;
 
 class MinkDriver implements DriverInterface
 {
@@ -26,9 +26,9 @@ class MinkDriver implements DriverInterface
             $out = $driver->getBrowser()->captureEntirePageScreenshotToString("");
             $out = str_replace("\n", "", $out);
 
-            return $out;
+            return base64_decode($out);
         } elseif ($driver instanceof Selenium2Driver) {
-            return $driver->getWebDriverSession()->screenshot();
+            return base64_decode($driver->getWebDriverSession()->screenshot());
         }
 
         return $this->mink;
