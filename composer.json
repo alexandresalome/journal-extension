@@ -1,6 +1,7 @@
 {
     "name": "alom/journal-extension",
     "description": "Behat extension adding screenshots to HTML reports",
+    "license": "MIT",
     "type": "behat-extension",
     "require": {
         "php": ">=5.3.2",
