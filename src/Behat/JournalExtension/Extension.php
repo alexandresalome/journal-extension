@@ -17,6 +17,7 @@ class Extension implements ExtensionInterface
         $loader->load('services.xml');
 
         $container->setParameter('behat.formatter.dispatcher.journal.capture_all', $config['capture_all']);
+        $container->setParameter('behat.formatter.dispatcher.journal.report_dir_path', $config['report_dir_path']);
         $container->setAlias('journal.driver', 'journal.driver.'.$config['driver']);
     }
 
@@ -27,6 +28,14 @@ class Extension implements ExtensionInterface
                 ->scalarNode('driver')->defaultValue('mink')->end()
                 ->booleanNode('capture_all')
                     ->defaultValue(false)
+                ->end()
+            ->end()
+        ;
+        $builder
+            ->children()
+                ->scalarNode('driver')->defaultValue('mink')->end()
+                ->variableNode('report_dir_path')
+                    ->defaultValue('reports/html')
                 ->end()
             ->end()
         ;

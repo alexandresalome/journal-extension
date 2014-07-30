@@ -17,12 +17,15 @@ class JournalFormatter extends HtmlFormatter
     protected $driver;
     protected $captureAll;
     protected $screenShotMarkup;
+    protected $screenShotDirectory;
 
-    public function __construct(DriverInterface $driver, $captureAll)
+    public function __construct(DriverInterface $driver, $captureAll, $reportDirPath='reports/html')
     {
         $this->driver = $driver;
         $this->captureAll = $captureAll;
         $this->screenShotMarkup = '';
+        $this->screenShotDirectory = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.$reportDirPath;
+        array_map('unlink', glob($this->screenShotDirectory.DIRECTORY_SEPARATOR."*.png"));
         parent::__construct();
     }
 
@@ -56,9 +59,13 @@ HTML
             try {
                 $screenshot = $this->driver->getScreenshot();
                 if ($screenshot) {
+                    $date = new \DateTime('now');
+                    $fileName = 'Screen Shot '.$date->format('Y-m-d H.i.s').'.png';
+                    $file = $this->screenShotDirectory.DIRECTORY_SEPARATOR.$fileName;
+                    file_put_contents($file,$screenshot);
                      $this->screenShotMarkup.='<div class="screenshot">';
                      $this->screenShotMarkup.=sprintf('<a href="#" class="screenshot-toggler">Toggle screenshot for '.$event->getStep()->getText().'</a>');
-                     $this->screenShotMarkup.=sprintf('<img src="data:image/png;base64,%s" />', base64_encode($screenshot));
+                     $this->screenShotMarkup.=sprintf('<img src="%s" />', $fileName);
                      $this->screenShotMarkup.='</div>';
                 }
             } catch (\Exception $e) {
