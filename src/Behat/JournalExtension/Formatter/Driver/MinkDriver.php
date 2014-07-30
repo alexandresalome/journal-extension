@@ -5,6 +5,7 @@ namespace Behat\JournalExtension\Formatter\Driver;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Driver\SeleniumDriver;
 use Behat\Mink\Mink;
+use EssentialDots\Mink\Driver\WebkitDriver;
 
 class MinkDriver implements DriverInterface
 {
@@ -29,6 +30,8 @@ class MinkDriver implements DriverInterface
             return base64_decode($out);
         } elseif ($driver instanceof Selenium2Driver) {
             return base64_decode($driver->getWebDriverSession()->screenshot());
+        } elseif($driver instanceof WebkitDriver) {
+            return $driver->getScreenshot();
         }
 
         return $this->mink;
