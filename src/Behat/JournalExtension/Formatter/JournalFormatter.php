@@ -12,36 +12,41 @@ use Behat\Behat\Event\StepEvent;
 use Behat\Gherkin\Node\TableNode;
 
 
-class JournalFormatter extends HtmlFormatter
-{
+class JournalFormatter extends HtmlFormatter {
     protected $driver;
     protected $captureAll;
     protected $screenShotMarkup;
     protected $screenShotDirectory;
 
-    public function __construct(DriverInterface $driver, $captureAll, $reportDirPath='reports/html')
-    {
+    public function __construct(DriverInterface $driver, $captureAll, $reportDirPath = 'reports/html') {
         $this->driver = $driver;
         $this->captureAll = $captureAll;
         $this->screenShotMarkup = '';
-        $this->screenShotDirectory = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.$reportDirPath;
-        array_map('unlink', glob($this->screenShotDirectory.DIRECTORY_SEPARATOR."*.png"));
+        $this->screenShotDirectory = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $reportDirPath;
+        array_map('unlink', glob($this->screenShotDirectory . DIRECTORY_SEPARATOR . "*.png"));
         parent::__construct();
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function printSummary(LoggerDataCollector $logger)
-    {
+    protected function printSummary(LoggerDataCollector $logger) {
+        $results = $logger->getScenariosStatuses();
+        $result = $results['failed'] > 0 ? 'failed' : 'passed';
+
+        parent::printSummary($logger);
+
+        $this->writeln('<div class="summary ' . $result . '">');
         $this->writeln(<<<'HTML'
-<div class="switchers">
+<div class="switchers screenshot-switchers">
     <a href="#" onclick="$('.screenshot,.outline-example-result-screenshots-holder').addClass('jq-toggle-opened'); $('#behat_show_all').click(); return false;" id="behat_show_screenshots">[+] screenshots</a>
     <a href="#" onclick="$('.screenshot,.outline-example-result-screenshots-holder').removeClass('jq-toggle-opened'); $('#behat_hide_all').click(); return false;" id="behat_hide_screenshots">[-] screenshots</a>
 </div>
 HTML
-);
-        parent::printSummary($logger);
+        );
+        $this->writeln('</div>');
+
+
     }
 
     /**
@@ -51,27 +56,26 @@ HTML
      *
      * @uses printStep()
      */
-    public function afterStep(StepEvent $event)
-    {
-        $color = $this->getResultColorCode( $event->getResult());
+    public function afterStep(StepEvent $event) {
+        $color = $this->getResultColorCode($event->getResult());
         $capture = $this->captureAll || $color == 'failed';
         if ($capture) {
             try {
                 $screenshot = $this->driver->getScreenshot();
                 if ($screenshot) {
                     $date = new \DateTime('now');
-                    $fileName = 'Screen Shot '.$date->format('Y-m-d H.i.s').'.png';
-                    $file = $this->screenShotDirectory.DIRECTORY_SEPARATOR.$fileName;
-                    file_put_contents($file,$screenshot);
-                     $this->screenShotMarkup.='<div class="screenshot">';
-                     $this->screenShotMarkup.=sprintf('<a href="#" class="screenshot-toggler">Toggle screenshot for '.$event->getStep()->getText().'</a>');
-                     $this->screenShotMarkup.=sprintf('<img src="%s" />', $fileName);
-                     $this->screenShotMarkup.='</div>';
+                    $fileName = 'Screen Shot ' . $date->format('Y-m-d H.i.s') . '.png';
+                    $file = $this->screenShotDirectory . DIRECTORY_SEPARATOR . $fileName;
+                    file_put_contents($file, $screenshot);
+                    $this->screenShotMarkup .= '<div class="screenshot">';
+                    $this->screenShotMarkup .= sprintf('<a href="#" class="screenshot-toggler">Toggle screenshot for ' . $event->getStep()->getText() . '</a>');
+                    $this->screenShotMarkup .= sprintf('<img src="%s" />', $fileName);
+                    $this->screenShotMarkup .= '</div>';
                 }
             } catch (\Exception $e) {
-                 $this->screenShotMarkup.='<div class="screenshot">';
-                 $this->screenShotMarkup.=sprintf('<em>Error while taking screenshot for '.$event->getStep()->getText().' : %s</em>', htmlspecialchars($e->getMessage()));
-                 $this->screenShotMarkup.='</div>';
+                $this->screenShotMarkup .= '<div class="screenshot">';
+                $this->screenShotMarkup .= sprintf('<em>Error while taking screenshot for ' . $event->getStep()->getText() . ' : %s</em>', htmlspecialchars($e->getMessage()));
+                $this->screenShotMarkup .= '</div>';
             }
         }
         if ($this->inBackground && $this->isBackgroundPrinted) {
@@ -99,16 +103,19 @@ HTML
 
     /**
      * {@inheritdoc}
+     * @param TableNode $examples
+     * @param int $iteration
+     * @param int $result
+     * @param bool $isSkipped
      */
-    protected function printOutlineExampleResult(TableNode $examples, $iteration, $result, $isSkipped)
-    {
+    protected function printOutlineExampleResult(TableNode $examples, $iteration, $result, $isSkipped) {
         if (!$this->getParameter('expand')) {
-            $color  = $this->getResultColorCode($result);
+            $color = $this->getResultColorCode($result);
             $this->printColorizedTableRow($examples->getRow($iteration + 1), $color);
 
             $this->printOutlineExampleResultExceptions($examples, $this->delayedStepEvents);
             $this->writeln('<tr class="' . $color . '">');
-            $this->writeln('<td>' . ($iteration+1) . '</td>');
+            $this->writeln('<td>' . ($iteration + 1) . '</td>');
             $this->writeln('<td colspan="' . count($examples->getRow($iteration)) . '">');
             $this->writeln('<div><a href="#" class="open-screenshots"> [+] Screenshot links </a>&nbsp;<a href="#" class="close-screenshots"> [-] Screenshot links </a></div>');
             $this->writeln('<div class="outline-example-result-screenshots-holder jq-toggle">');
@@ -138,8 +145,11 @@ HTML
         }
     }
 
-    protected function getHtmlTemplateScript()
-    {
+    /**
+     * {@inheritdoc}
+     * @return string
+     */
+    protected function getHtmlTemplateScript() {
         $result = parent::getHtmlTemplateScript();
 
         $result .= <<<JS
@@ -167,30 +177,41 @@ JS;
         return $result;
     }
 
-    protected function getHtmlTemplateStyle()
-    {
+    /**
+     * {@inheritdoc}
+     * @return string
+     */
+    protected function getHtmlTemplateStyle() {
         $result = parent::getHtmlTemplateStyle();
 
         $result .= <<<CSS
 
-        .screenshot img {
+        #behat .screenshot img {
             display: none;
             max-width: 100%;
         }
 
-        .screenshot.jq-toggle-opened img {
+        #behat .screenshot {
+            clear: both;
+        }
+
+        #behat .screenshot.jq-toggle-opened img {
             display: block;
         }
 
-        .outline-example-result-screenshots-holder.jq-toggle {
+        #behat .outline-example-result-screenshots-holder.jq-toggle {
             display: none;
         }
-        .outline-example-result-screenshots-holder.jq-toggle.jq-toggle-opened {
+        #behat .outline-example-result-screenshots-holder.jq-toggle.jq-toggle-opened {
             display: block;
+        }
+        #behat .summary .screenshot-switchers {
+            right: 114px;
         }
 
 CSS;
 
         return $result;
     }
+
 }
