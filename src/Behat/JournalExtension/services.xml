@@ -4,7 +4,6 @@
         <service id="behat.formatter.dispatcher.journal" class="Behat\JournalExtension\Formatter\JournalDispatcher">
             <argument type="service" id="journal.driver" />
             <argument>%behat.formatter.dispatcher.journal.capture_all%</argument>
-            <argument>%behat.formatter.dispatcher.journal.report_dir_path%</argument>
 
             <tag name="behat.formatter.dispatcher" />
         </service>

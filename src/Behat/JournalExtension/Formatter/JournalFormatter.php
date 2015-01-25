@@ -18,13 +18,21 @@ class JournalFormatter extends HtmlFormatter {
     protected $screenShotMarkup;
     protected $screenShotDirectory;
 
-    public function __construct(DriverInterface $driver, $captureAll, $reportDirPath = 'reports/html') {
+    public function __construct(DriverInterface $driver, $captureAll) {
         $this->driver = $driver;
         $this->captureAll = $captureAll;
         $this->screenShotMarkup = '';
-        $this->screenShotDirectory = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $reportDirPath;
-        array_map('unlink', glob($this->screenShotDirectory . DIRECTORY_SEPARATOR . "*.png"));
         parent::__construct();
+    }
+
+    protected function createOutputConsole() {
+        $output_path = $this->parameters->get('output_path');
+        if (!$output_path) {
+            $output_path = '.';
+        }
+        $this->screenShotDirectory = dirname($output_path);
+        array_map('unlink', glob($this->screenShotDirectory . DIRECTORY_SEPARATOR . $this->screenShotPrefix . "*.png"));
+        return parent::createOutputConsole();
     }
 
     /**
@@ -64,7 +72,7 @@ HTML
                 $screenshot = $this->driver->getScreenshot();
                 if ($screenshot) {
                     $date = new \DateTime('now');
-                    $fileName = 'Screen Shot ' . $date->format('Y-m-d H.i.s') . '.png';
+                    $fileName = $this->screenShotPrefix . $date->format('Y-m-d H.i.s') . '.png';
                     $file = $this->screenShotDirectory . DIRECTORY_SEPARATOR . $fileName;
                     file_put_contents($file, $screenshot);
                     $this->screenShotMarkup .= '<div class="screenshot">';
