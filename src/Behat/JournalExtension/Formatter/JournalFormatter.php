@@ -15,12 +15,14 @@ use Behat\Gherkin\Node\TableNode;
 class JournalFormatter extends HtmlFormatter {
     protected $driver;
     protected $captureAll;
+    protected $skipDuplicates;
     protected $screenShotMarkup;
     protected $screenShotDirectory;
 
     public function __construct(DriverInterface $driver, $captureAll, $reportDirPath = 'reports/html') {
         $this->driver = $driver;
-        $this->captureAll = $captureAll;
+        $this->captureAll = (bool)$captureAll;
+        $this->skipDuplicates = ($captureAll === 'skip_duplicates');
         $this->screenShotMarkup = '';
         $this->screenShotDirectory = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $reportDirPath;
         array_map('unlink', glob($this->screenShotDirectory . DIRECTORY_SEPARATOR . "*.png"));
@@ -57,12 +59,16 @@ HTML
      * @uses printStep()
      */
     public function afterStep(StepEvent $event) {
+        static $last_screenshot;
         $color = $this->getResultColorCode($event->getResult());
         $capture = $this->captureAll || $color == 'failed';
         if ($capture) {
             try {
                 $screenshot = $this->driver->getScreenshot();
-                if ($screenshot) {
+                if ($screenshot && (!$this->skipDuplicates || ($last_screenshot != $screenshot))) {
+                    if ($this->skipDuplicates) {
+                        $last_screenshot = $screenshot;
+                    }
                     $date = new \DateTime('now');
                     $fileName = 'Screen Shot ' . $date->format('Y-m-d H.i.s') . '.png';
                     $file = $this->screenShotDirectory . DIRECTORY_SEPARATOR . $fileName;
