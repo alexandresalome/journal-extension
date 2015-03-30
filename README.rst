@@ -24,6 +24,7 @@ Configure ``behat.yml``:
         extensions:
             Behat\JournalExtension\Extension:
                 driver: mink # available: mink, webdriver
+                capture_all: true # defaults to false to only capture on failure
 
 Launch your test suite with format **journal**:
 
@@ -33,6 +34,18 @@ Launch your test suite with format **journal**:
 
 This command will produce a file ``journal.html`` containing the HTML standard
 output with additional screenshots.
+
+Screenshot files will be placed in the same folder as the main output file.
+Any old screenshots are removed from the output folder first.
+
+To get another progress on screen while journal report is being generated, use behat.yml:
+
+.. code-block:: yaml
+
+    formatter:
+            name: journal,pretty
+            parameters:
+                output_path: wwwdocs/features/index.html,null
 
 To work, you have to use proper extension for it. Supported are:
 
