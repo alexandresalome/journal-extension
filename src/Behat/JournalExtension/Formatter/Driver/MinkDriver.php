@@ -34,6 +34,6 @@ class MinkDriver implements DriverInterface
             return $driver->getScreenshot();
         }
 
-        return $this->mink;
+        return;
     }
 }

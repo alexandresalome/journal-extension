@@ -22,6 +22,7 @@ class JournalFormatter extends HtmlFormatter {
         $this->driver = $driver;
         $this->captureAll = $captureAll;
         $this->screenShotMarkup = '';
+        $this->screenShotPrefix = 'screenshot_';
         parent::__construct();
     }
 
