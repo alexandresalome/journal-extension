@@ -25,7 +25,7 @@ class Extension implements ExtensionInterface
         $builder
             ->children()
                 ->scalarNode('driver')->defaultValue('mink')->end()
-                ->booleanNode('capture_all')
+                ->variableNode('capture_all')
                     ->defaultValue(false)
                 ->end()
             ->end()
